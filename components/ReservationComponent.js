@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Text, View, ScrollView, StyleSheet, Picker, Switch, Button, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Animatable from 'react-native-animatable';
+import * as Notifications from 'expo-notifications';
 
 class Reservation extends Component {
 
@@ -27,17 +28,68 @@ class Reservation extends Component {
 
     // handleReservation() {
     //     console.log(JSON.stringify(this.state));
-    //     this.toggleModal()
+    //     const message = `Number of Campers: ${this.state.campers}
+    //                     \nHike-In? ${this.state.hikeIn}
+    //                     \nDate: ${this.state.date.toLocaleDateString('en-US')}`;
+    //     Alert.alert(
+    //         'Begin Search?',
+    //         'Number of Campers: ' + this.state.campers + ' ? \n\nHike-in?: ' + this.state.hikeIn + '\n\nDate: ' + this.state.date.toLocaleDateString('en-US'),
+    //           [
+    //             {
+    //                 text: 'Cancel',
+    //                 onPress: () => {
+    //                     console.log('You Closed Alert') 
+    //                     this.resetForm()
+    //                 },
+    //                 style: 'cancel'
+    //             },
+    //             {
+    //                 text: 'OK',
+    //                 onPress: () => {
+    //                     console.log('You Submitted Reservation')
+    //                     this.presentLocalNotification(this.state.date.toLocaleDateString('en-US'))
+    //                     this.resetForm();
+    //                 }
+    //             },
+    //         ],
+    //         { cancelable: false }
+    //     );
     // }
 
-    // resetForm() {
-    //     this.setState({
-    //         campers: 1,
-    //         hikeIn: false,
-    //         date: new Date(),
-    //         showCalender: false
-    //     });
-    // }
+    resetForm() {
+        this.setState({
+            campers: 1,
+            hikeIn: false,
+            date: new Date(),
+            showCalender: false
+        });
+    }
+
+    async presentLocalNotification(date) {
+        function sendNotification() {
+            Notifications.setNotificationHandler({
+                handleNotification: async () => ({
+                    shouldShowAlert: true
+                })
+            });
+
+            Notifications.scheduleNotificationAsync({
+                content: {
+                    title: 'Your Campsite Reservation Search',
+                    body: `Search for ${date} requested`
+                },
+                trigger: null
+            });
+        }
+
+        let permissions = await Notifications.getPermissionsAsync();
+        if (!permissions.granted) {
+            permissions = await Notifications.requestPermissionsAsync();
+        }
+        if (permissions.granted) {
+            sendNotification();
+        }
+    }
 
     render() {
         return (
@@ -91,7 +143,7 @@ class Reservation extends Component {
                     )}
                     <View style={styles.formRow}>
                         <Button
-                            // onPress={() => this.handleReservation()}
+                            // onPress={() => this.handleReservation()}   "<=interesting course way, below is my way, view above code for more"
                             onPress={() =>
                                 Alert.alert(
                                     'Begin Search?',
@@ -99,12 +151,19 @@ class Reservation extends Component {
                                     [
                                         {
                                             text: 'Cancel',
-                                            onPress: () => console.log('You Closed Alert'),
+                                            onPress: () => {
+                                                console.log('You Closed Alert') 
+                                                this.resetForm()
+                                            },
                                             style: 'cancel'
                                         },
                                         {
                                             text: 'OK',
-                                            onPress: () => console.log('You Submitted Reservation')
+                                            onPress: () => {
+                                                console.log('You Submitted Reservation')
+                                                this.presentLocalNotification(this.state.date.toLocaleDateString('en-US'))
+                                                this.resetForm();
+                                            }
                                         },
                                     ],
                                     { cancelable: false }
