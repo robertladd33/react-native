@@ -143,7 +143,7 @@ class Reservation extends Component {
                     )}
                     <View style={styles.formRow}>
                         <Button
-                            // onPress={() => this.handleReservation()}   "<=interesting course way, below is my way, view above code for more"
+                            // onPress={() => this.handleReservation()}   "<=interesting course way, below is my way, view above code for course way"
                             onPress={() =>
                                 Alert.alert(
                                     'Begin Search?',
